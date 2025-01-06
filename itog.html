@@ -2,23 +2,14 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Shooting Game Sponsored By Il Dottore</title>
+    <title>A-Frame Shooting Game</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script>
-        AFRAME.registerComponent('player-move', {
-            tick: function (time, deltaTime) {
-                let player = this.el;
-                let speed = 0.001; // Скорость движения игрока
-                player.object3D.position.z -= speed * deltaTime;
-            }
-        });
-
         AFRAME.registerComponent('shoot-ball', {
             init: function() {
                 this.cooldown = false;
-                this.cooldownTime = 500;
+                this.cooldownTime = 200;
                 this.cameraEl = document.querySelector('#camera');
-                this.playerEl = document.querySelector('#player');
 
                 window.addEventListener('keydown', (event) => {
                     if (event.code === 'Space' && !this.cooldown) {
@@ -77,7 +68,6 @@
             }
         });
 
-
         AFRAME.registerComponent('collision-check', {
             isCollideWith: function(other)
             {
@@ -97,42 +87,39 @@
             }
         });
 
-        AFRAME.registerComponent('create-boxes', {
+
+        AFRAME.registerComponent('create-wall', {
             init: function() {
                 let scene = this.el;
-                let numBoxes = 5;
-                let boxSpacing = 2;
+                let wallWidth = 5;
+                let wallHeight = 5;
+                let boxSize = 1;
+                let spacing = boxSize + 0.2;
+                let startX = -((wallWidth - 1) * spacing) / 2;
+                let startY = ((wallHeight - 1) * spacing) / 2;
+                let startZ = -5;
 
-                for (let i = 0; i < numBoxes; i++) {
-                    let box1 = document.createElement('a-box');
-                    box1.setAttribute('class', 'box');
-                    box1.setAttribute('color', 'lime');
-                    box1.setAttribute('width', 1);
-                    box1.setAttribute('height', 1);
-                    box1.setAttribute('depth', 0.5);
-                    box1.setAttribute('position', (-boxSpacing) + ' ' + 0.5 + ' ' + (-5 - i*boxSpacing*2));
-                    scene.appendChild(box1);
-
-                    let box2 = document.createElement('a-box');
-                    box2.setAttribute('class', 'box');
-                    box2.setAttribute('color', 'lime');
-                    box2.setAttribute('width', 1);
-                    box2.setAttribute('height', 1);
-                    box2.setAttribute('depth', 0.5);
-                    box2.setAttribute('position', (boxSpacing) + ' ' + 0.5 + ' ' + (-5 - i*boxSpacing*2));
-                    scene.appendChild(box2);
+                for (let y = 0; y < wallHeight; y++) {
+                    for (let x = 0; x < wallWidth; x++) {
+                        let box = document.createElement('a-box');
+                        box.setAttribute('class', 'box');
+                        box.setAttribute('color', 'lime');
+                        box.setAttribute('width', boxSize);
+                        box.setAttribute('height', boxSize);
+                        box.setAttribute('depth', 0.5);
+                        box.setAttribute('position', (startX + x * spacing) + ' ' + (startY - y * spacing) + ' ' + startZ);
+                        scene.appendChild(box);
+                    }
                 }
             }
         });
     </script>
 </head>
 <body>
-<a-scene create-boxes>
-    <a-entity id="player" player-move>
-        <a-entity id="camera" camera look-controls wasd-controls shoot-ball>
+    <a-scene create-wall>
+        <a-entity id="camera" camera look-controls wasd-controls shoot-ball position="0 0 0">
             <a-entity cursor="fuse: true; fuseTimeout: 500"></a-entity>
         </a-entity>
-    </a-entity>
-</a-scene>
+    </a-scene>
 </body>
 </html>
