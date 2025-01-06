@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>A-Frame Shooting Game</title>
+    <title>A-Frame</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script>
         AFRAME.registerComponent('shoot-ball', {
@@ -10,9 +10,12 @@
                 this.cooldown = false;
                 this.cooldownTime = 200;
                 this.cameraEl = document.querySelector('#camera');
+                console.log("Shoot-ball component initialized");
 
                 window.addEventListener('keydown', (event) => {
+                    console.log("Keydown event detected: ", event.code);
                     if (event.code === 'Space' && !this.cooldown) {
+                        console.log("Space key pressed, shooting");
                         this.shoot();
                         this.cooldown = true;
                         setTimeout(() => {
@@ -22,6 +25,7 @@
                 });
             },
             shoot: function() {
+              console.log("Shoot function called");
                 let ball = document.createElement('a-sphere');
                 ball.setAttribute('radius', 0.1);
                 ball.setAttribute('color', 'red');
@@ -33,42 +37,45 @@
 
                 ball.setAttribute('position', cameraPosition);
                 ball.setAttribute('velocity', direction.multiplyScalar(0.15));
-                ball.setAttribute('move-ball', '');
+                // ball.setAttribute('move-ball', ''); // Временно убираем move-ball
 
                 this.el.sceneEl.appendChild(ball);
+              console.log("Ball created and added to scene");
             }
         });
 
-        AFRAME.registerComponent('move-ball', {
-            tick: function (time, deltaTime) {
-                let ball = this.el;
-                let velocity = ball.getAttribute('velocity');
+       AFRAME.registerComponent('move-ball', {
+           tick: function (time, deltaTime) {
+              let ball = this.el;
+               let velocity = ball.getAttribute('velocity');
                 let position = ball.getAttribute('position');
                 if (!velocity) return;
                 let newPosition = {x: position.x + velocity.x * deltaTime, y: position.y + velocity.y * deltaTime, z: position.z + velocity.z * deltaTime};
 
                 ball.setAttribute('position', newPosition);
 
-                // Проверка столкновений
-                let boxes = document.querySelectorAll('.box');
+                // Проверка столкновений - Временно убрано
+                /*let boxes = document.querySelectorAll('.box');
                 for (let box of boxes) {
                     if (ball.isCollideWith(box)) {
                         box.remove();
                         ball.remove();
                         return;
                     }
-                }
+                }*/
+
 
                 // Удаление шарика за пределами видимости
                 if (newPosition.z < -15)
                 {
-                    ball.remove();
-                    return;
+                  ball.remove();
+                   return;
                 }
             }
         });
 
-        AFRAME.registerComponent('collision-check', {
+
+      AFRAME.registerComponent('collision-check', {
             isCollideWith: function(other)
             {
                 let pos1 = this.el.object3D.position;
