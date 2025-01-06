@@ -8,7 +8,7 @@
         AFRAME.registerComponent('fly-forward', {
             tick: function (time, deltaTime) {
                 let camera = this.el;
-                let speed = 0.01; // Скорость камеры
+                let speed = 0.0001; // Скорость камеры
                 camera.object3D.position.z -= speed * deltaTime;
             }
         });
