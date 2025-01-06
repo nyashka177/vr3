@@ -8,7 +8,7 @@
       AFRAME.registerComponent('player-move', {
         tick: function (time, deltaTime) {
             let player = this.el;
-            let speed = 0.01; // Скорость движения игрока
+            let speed = 0.001; // Скорость движения игрока
             player.object3D.position.z -= speed * deltaTime;
         }
       });
