@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>My A-Frame App</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  </head>
+  <body>
+    <a-scene>
+      <a-sky color="#87CEEB"></a-sky>  <!--  Небо -->
+
+      <a-light type="ambient" color="#444"></a-light>
+      <a-light type="point" position="2 3 3"></a-light>
+
+      <a-box color="red" position="-1 0.5 -3">
+        <a-animation attribute="rotation" dur="2000" to="0 360 0" repeat="indefinite"></a-animation>
+      </a-box>
+      <a-sphere color="blue" position="0 1 -3" radius="0.75"></a-sphere>
+      <a-cylinder color="green" position="1 0.5 -3" height="1.5" radius="0.5"></a-cylinder>
+
+      <a-gltf-model src="assets/my_model.glb" position="0 0 -5" scale="0.5 0.5 0.5"></a-gltf-model>
+
+      <a-camera>
+        <a-entity cursor="fuse: true; fuseTimeout: 500" raycaster="far: 10; objects: .clickable"></a-entity>
+      </a-camera>
+    </a-scene>
+  </body>
+</html>
