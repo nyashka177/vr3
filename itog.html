@@ -2,22 +2,24 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>A-Frame Shooting Game</title>
+    <title>Shooting Game Sponsored By Dottore</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script>
-        AFRAME.registerComponent('fly-forward', {
-            tick: function (time, deltaTime) {
-                let camera = this.el;
-                let speed = 0.001; // Скорость камеры
-                camera.object3D.position.z -= speed * deltaTime;
-            }
-        });
+      AFRAME.registerComponent('player-move', {
+        tick: function (time, deltaTime) {
+            let player = this.el;
+            let speed = 0.01; // Скорость движения игрока
+            player.object3D.position.z -= speed * deltaTime;
+        }
+      });
 
-        AFRAME.registerComponent('shoot-ball', {
+      AFRAME.registerComponent('shoot-ball', {
           init: function() {
             this.cooldown = false;
-            this.cooldownTime = 500; // Миллисекунды
+            this.cooldownTime = 500;
             this.cameraEl = document.querySelector('#camera');
+            this.playerEl = document.querySelector('#player');
+
 
             this.el.addEventListener('click', () => {
               if (!this.cooldown) {
@@ -30,10 +32,10 @@
             });
           },
 
-          shoot: function() {
+        shoot: function() {
             let ball = document.createElement('a-sphere');
-            ball.setAttribute('radius', 0.2);
-            ball.setAttribute('color', 'yellow');
+            ball.setAttribute('radius', 0.1);
+            ball.setAttribute('color', 'red');
             ball.setAttribute('class', 'ball');
 
             let cameraPosition = this.cameraEl.object3D.position;
@@ -44,8 +46,8 @@
             ball.setAttribute('velocity', direction.multiplyScalar(0.15));
 
             this.el.sceneEl.appendChild(ball);
-          }
-        });
+        }
+      });
 
         AFRAME.registerComponent('move-ball', {
             tick: function (time, deltaTime) {
@@ -103,7 +105,7 @@
 
                 for (let i = 0; i < numBoxes; i++) {
                   let box1 = document.createElement('a-box');
-                  box1.setAttribute('class', 'box clickable');
+                  box1.setAttribute('class', 'box');
                   box1.setAttribute('color', 'lime');
                   box1.setAttribute('width', 1);
                   box1.setAttribute('height', 1);
@@ -112,7 +114,7 @@
                   scene.appendChild(box1);
 
                   let box2 = document.createElement('a-box');
-                  box2.setAttribute('class', 'box clickable');
+                  box2.setAttribute('class', 'box');
                   box2.setAttribute('color', 'lime');
                   box2.setAttribute('width', 1);
                   box2.setAttribute('height', 1);
@@ -126,8 +128,10 @@
   </head>
   <body>
     <a-scene create-boxes>
-       <a-entity id="camera" camera fly-forward shoot-ball>
-           <a-entity cursor="fuse: true; fuseTimeout: 500" raycaster="far: 10; objects: .clickable"></a-entity>
+       <a-entity id="player" player-move>
+            <a-entity id="camera" camera look-controls wasd-controls shoot-ball>
+               <a-entity cursor="fuse: true; fuseTimeout: 500"></a-entity>
+            </a-entity>
        </a-entity>
     </a-scene>
   </body>
