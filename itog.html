@@ -2,114 +2,62 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>A-Frame Shooting Game</title>
+    <title>A-Frame Sphere Shooter</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script>
+        AFRAME.registerComponent('sphere-spawner', {
+            init: function () {
+                this.cameraEl = document.querySelector('#camera');
+                this.interval = 3000; // 3 секунды
+                this.tickCount = 0;
+            },
 
-      function isCollide(obj1, obj2) {
-        let pos1 = obj1.object3D.position;
-        let size1 = obj1.getAttribute('geometry');
-        if (!size1) return false;
-        let scale1 = obj1.object3D.scale;
-        let box1 = new THREE.Box3(new THREE.Vector3(pos1.x - size1.width / 2 * scale1.x, pos1.y - size1.height / 2 * scale1.y, pos1.z - size1.depth / 2 * scale1.z), new THREE.Vector3(pos1.x + size1.width / 2 * scale1.x, pos1.y + size1.height / 2 * scale1.y, pos1.z + size1.depth / 2 * scale1.z));
-
-        let pos2 = obj2.object3D.position;
-        let size2 = obj2.getAttribute('geometry');
-        if (!size2) return false;
-        let scale2 = obj2.object3D.scale;
-        let box2 = new THREE.Box3(new THREE.Vector3(pos2.x - size2.width / 2 * scale2.x, pos2.y - size2.height / 2 * scale2.y, pos2.z - size2.depth / 2 * scale2.z), new THREE.Vector3(pos2.x + size2.width / 2 * scale2.x, pos2.y + size2.height / 2 * scale2.y, pos2.z + size2.depth / 2 * scale2.z));
-
-        return box1.intersectsBox(box2);
-      }
-
-      AFRAME.registerComponent('shoot-ball', {
-        init: function () {
-            this.cooldown = false;
-            this.cooldownTime = 200;
-            this.cameraEl = document.querySelector('#camera');
-
-            window.addEventListener('keydown', (event) => {
-                if (event.code === 'Space' && !this.cooldown) {
-                    this.shoot();
-                    this.cooldown = true;
-                    setTimeout(() => {
-                        this.cooldown = false;
-                    }, this.cooldownTime);
+            tick: function (time, deltaTime) {
+              this.tickCount += deltaTime;
+                if (this.tickCount >= this.interval) {
+                  this.tickCount = 0;
+                    this.spawnSphere();
                 }
-            });
-        },
-        shoot: function () {
-            let ball = document.createElement('a-sphere');
-            ball.setAttribute('radius', 0.1);
-            ball.setAttribute('color', 'red');
-            ball.setAttribute('class', 'ball');
+            },
+          spawnSphere: function () {
+              let sphere = document.createElement('a-sphere');
+              sphere.setAttribute('radius', 0.1);
+              sphere.setAttribute('color', 'red');
+                sphere.setAttribute('move-ball', '');
 
-            let cameraPosition = this.cameraEl.object3D.position;
-            let cameraRotation = this.cameraEl.object3D.rotation;
-            let direction = new THREE.Vector3(0, 0, -1).applyEuler(cameraRotation);
+              let cameraPosition = this.cameraEl.object3D.position;
+                let cameraRotation = this.cameraEl.object3D.rotation;
+              let direction = new THREE.Vector3(0, 0, -1).applyEuler(cameraRotation);
 
-            ball.setAttribute('position', cameraPosition);
-            ball.setAttribute('velocity', direction.multiplyScalar(0.15));
-            ball.setAttribute('move-ball', ''); // Добавляем move-ball после создания
+                sphere.setAttribute('position', cameraPosition);
+              sphere.setAttribute('velocity', direction.multiplyScalar(0.15));
 
-            this.el.sceneEl.appendChild(ball);
-        }
-      });
+              this.el.sceneEl.appendChild(sphere);
+          }
+        });
 
-      AFRAME.registerComponent('move-ball', {
-        tick: function (time, deltaTime) {
-          let ball = this.el;
-          let velocity = ball.getAttribute('velocity');
-          let position = ball.getAttribute('position');
-          if (!velocity) return;
-          let newPosition = {x: position.x + velocity.x * deltaTime, y: position.y + velocity.y * deltaTime, z: position.z + velocity.z * deltaTime};
-            ball.setAttribute('position', newPosition);
+        AFRAME.registerComponent('move-ball', {
+            tick: function (time, deltaTime) {
+                let ball = this.el;
+                let velocity = ball.getAttribute('velocity');
+                let position = ball.getAttribute('position');
+                if (!velocity) return;
+                let newPosition = {x: position.x + velocity.x * deltaTime, y: position.y + velocity.y * deltaTime, z: position.z + velocity.z * deltaTime};
 
-           let boxes = document.querySelectorAll('.box');
-           for (let box of boxes) {
-                if (isCollide(ball, box)) {
-                    box.remove();
-                    ball.remove();
-                    return;
-                 }
+                ball.setAttribute('position', newPosition);
+
+                if (newPosition.z < -15)
+                {
+                   ball.remove();
+                   return;
+                }
            }
-           if (newPosition.z < -15) {
-                ball.remove();
-                return;
-            }
-        }
-      });
-
-        AFRAME.registerComponent('create-wall', {
-            init: function() {
-                let scene = this.el;
-                let wallWidth = 5;
-                let wallHeight = 5;
-                let boxSize = 1;
-                let spacing = boxSize + 0.2;
-                let startX = -((wallWidth - 1) * spacing) / 2;
-                let startY = ((wallHeight - 1) * spacing) / 2;
-                let startZ = -5;
-
-                for (let y = 0; y < wallHeight; y++) {
-                    for (let x = 0; x < wallWidth; x++) {
-                        let box = document.createElement('a-box');
-                        box.setAttribute('class', 'box');
-                        box.setAttribute('color', 'lime');
-                        box.setAttribute('width', boxSize);
-                        box.setAttribute('height', boxSize);
-                        box.setAttribute('depth', 0.5);
-                        box.setAttribute('position', (startX + x * spacing) + ' ' + (startY - y * spacing) + ' ' + startZ);
-                        scene.appendChild(box);
-                    }
-                }
-            }
         });
     </script>
 </head>
 <body>
-    <a-scene create-wall>
-        <a-entity id="camera" camera look-controls wasd-controls shoot-ball position="0 0 0">
+    <a-scene sphere-spawner>
+        <a-entity id="camera" camera look-controls wasd-controls position="0 0 0">
             <a-entity cursor="fuse: true; fuseTimeout: 500"></a-entity>
         </a-entity>
     </a-scene>
